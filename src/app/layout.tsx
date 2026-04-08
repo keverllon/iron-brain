@@ -5,16 +5,19 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  preload: false, // <-- Adicionado para evitar o aviso no console
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false, // <-- Adicionado para evitar o aviso no console
 });
 
 export const metadata: Metadata = {
   title: "Iron Brain - Assistente de Treino Inteligente",
-  description: "Seu assistente de treino inteligente com periodização via IA. Gere treinos personalizados, calcule 1RM e acompanhe seu progresso.",
+  description:
+    "Seu assistente de treino inteligente com periodização via IA. Gere treinos personalizados, calcule 1RM e acompanhe seu progresso.",
 };
 
 export default function RootLayout({
@@ -25,8 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
