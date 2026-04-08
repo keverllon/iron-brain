@@ -5,7 +5,8 @@ import { prisma } from "@/lib/db";
 import { createToken } from "@/lib/auth";
 
 const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
+  // .trim() remove espaços acidentais e .toLowerCase() garante que tudo fique minúsculo
+  email: z.string().trim().toLowerCase().email("Email inválido"),
   password: z.string().min(1, "Senha é obrigatória"),
 });
 
@@ -66,29 +67,42 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = validated.data;
 
-    // Tentar banco primeiro
+    // 1. Tentar banco primeiro
     try {
       const user = (await prisma.user.findUnique({
         where: { email },
       })) as UserWithAuth | null;
 
-      if (user && user.passwordHash) {
-        const validPassword = await bcrypt.compare(password, user.passwordHash);
-        if (validPassword) {
-          return createAuthResponse({
-            userId: user.id,
-            email: user.email,
-            role: user.role,
-            name: user.name,
-            subscriptionStatus: user.subscriptionStatus,
-          });
+      if (user) {
+        if (user.passwordHash) {
+          const validPassword = await bcrypt.compare(
+            password,
+            user.passwordHash,
+          );
+          if (validPassword) {
+            return await createAuthResponse({
+              userId: user.id,
+              email: user.email,
+              role: user.role,
+              name: user.name,
+              subscriptionStatus: user.subscriptionStatus,
+            });
+          }
         }
+
+        // Se o usuário foi encontrado, mas a senha é inválida ou não tem hash, para por aqui
+        return NextResponse.json(
+          { success: false, error: "Email ou senha inválidos" },
+          { status: 401 },
+        );
       }
-    } catch {
-      // Banco indisponível, usar demo
+    } catch (dbError) {
+      console.warn(
+        "Aviso: Banco indisponível, tentando fallback para conta Demo...",
+      );
     }
 
-    // Fallback: verificar usuários demo
+    // 2. Fallback: verificar usuários demo (Apenas se o usuário não existir no banco)
     const demoUser = DEMO_USERS.find(
       (u) => u.email === email && u.password === password,
     );
@@ -118,7 +132,7 @@ export async function POST(request: NextRequest) {
       // Se falhar, continuar mesmo assim (demo funciona sem banco)
     }
 
-    return createAuthResponse({
+    return await createAuthResponse({
       userId: demoUser.id,
       email: demoUser.email,
       role: demoUser.role,
