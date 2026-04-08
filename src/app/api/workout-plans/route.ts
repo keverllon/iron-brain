@@ -143,7 +143,9 @@ export async function POST(request: NextRequest) {
 
 async function generateWorkoutPlan(body: unknown, userId: string) {
   try {
-    const validated = aiWorkoutGenerationSchema.omit({ userId: true }).safeParse(body);
+    const validated = aiWorkoutGenerationSchema
+      .omit({ userId: true })
+      .safeParse(body);
 
     if (!validated.success) {
       return NextResponse.json(
@@ -167,11 +169,113 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
     } = validated.data as any;
 
     // Buscar exercícios disponíveis no banco
-    const exercises = await prisma.exercise.findMany({
+    let exercises = await prisma.exercise.findMany({
       where: {
         equipmentType: { in: availableEquipment },
       },
     });
+
+    // CORREÇÃO MÁGICA: Se o banco estiver vazio, cria exercícios padrão automaticamente
+    if (exercises.length === 0) {
+      console.log("Banco de exercícios vazio. Criando lista padrão...");
+      const defaultExercises = [
+        {
+          name: "Supino Reto",
+          muscleGroup: "CHEST" as MuscleGroup,
+          equipmentType: "BARBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Supino Inclinado Halteres",
+          muscleGroup: "CHEST" as MuscleGroup,
+          equipmentType: "DUMBBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Crucifixo",
+          muscleGroup: "CHEST" as MuscleGroup,
+          equipmentType: "DUMBBELL" as EquipmentType,
+          isCompound: false,
+        },
+        {
+          name: "Puxada Frontal",
+          muscleGroup: "BACK" as MuscleGroup,
+          equipmentType: "MACHINE_CABLE" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Remada Curvada",
+          muscleGroup: "BACK" as MuscleGroup,
+          equipmentType: "BARBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Levantamento Terra",
+          muscleGroup: "BACK" as MuscleGroup,
+          equipmentType: "BARBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Agachamento Livre",
+          muscleGroup: "LEGS" as MuscleGroup,
+          equipmentType: "BARBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Leg Press",
+          muscleGroup: "LEGS" as MuscleGroup,
+          equipmentType: "MACHINE_PLATE" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Cadeira Extensora",
+          muscleGroup: "LEGS" as MuscleGroup,
+          equipmentType: "MACHINE_PLATE" as EquipmentType,
+          isCompound: false,
+        },
+        {
+          name: "Desenvolvimento",
+          muscleGroup: "SHOULDERS" as MuscleGroup,
+          equipmentType: "DUMBBELL" as EquipmentType,
+          isCompound: true,
+        },
+        {
+          name: "Elevação Lateral",
+          muscleGroup: "SHOULDERS" as MuscleGroup,
+          equipmentType: "DUMBBELL" as EquipmentType,
+          isCompound: false,
+        },
+        {
+          name: "Rosca Direta",
+          muscleGroup: "ARMS" as MuscleGroup,
+          equipmentType: "BARBELL" as EquipmentType,
+          isCompound: false,
+        },
+        {
+          name: "Tríceps Testa",
+          muscleGroup: "ARMS" as MuscleGroup,
+          equipmentType: "DUMBBELL" as EquipmentType,
+          isCompound: false,
+        },
+        {
+          name: "Tríceps Pulley",
+          muscleGroup: "ARMS" as MuscleGroup,
+          equipmentType: "MACHINE_CABLE" as EquipmentType,
+          isCompound: false,
+        },
+      ];
+
+      try {
+        await prisma.exercise.createMany({
+          data: defaultExercises,
+          skipDuplicates: true,
+        });
+        // Busca novamente no banco após criar
+        exercises = await prisma.exercise.findMany();
+      } catch (e) {
+        console.error("Falha ao criar exercícios padrão:", e);
+      }
+    }
 
     // Criar mapa de exercícios por nome para busca rápida (case-insensitive)
     const exerciseMap = new Map<
@@ -251,19 +355,24 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
           create: generatedPlan.sessions.map((session) => ({
             day: session.day,
             sets: {
-              create: session.exercises.map((ex) => {
-                // Buscar exercise ID pelo nome (case-insensitive)
-                const exercise = exerciseMap.get(ex.name.toLowerCase());
-                if (!exercise) {
-                  console.warn(`Exercício não encontrado: ${ex.name}`);
-                }
-                return {
-                  exerciseId: exercise?.id ?? "",
-                  targetSets: ex.sets,
-                  targetReps: ex.targetReps,
-                  weightLifted: ex.estimatedWeight,
-                };
-              }),
+              // Proteção extra: ignora nulos caso a IA invente exercícios e evita crash no banco
+              create: session.exercises
+                .map((ex) => {
+                  const exercise = exerciseMap.get(ex.name.toLowerCase());
+                  if (!exercise) {
+                    console.warn(
+                      `Exercício ignorado (não encontrado no banco): ${ex.name}`,
+                    );
+                    return null;
+                  }
+                  return {
+                    exerciseId: exercise.id,
+                    targetSets: ex.sets || 3,
+                    targetReps: ex.targetReps || "8-12",
+                    weightLifted: ex.estimatedWeight || 0,
+                  };
+                })
+                .filter((set): set is NonNullable<typeof set> => set !== null),
             },
           })),
         },

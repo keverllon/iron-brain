@@ -6,7 +6,6 @@ import {
   Zap,
   Calculator,
   TrendingUp,
-  Save,
   CheckCircle,
   Clock,
   ChevronDown,
@@ -25,8 +24,10 @@ interface Exercise {
 
 interface WorkoutSet {
   id: string;
-  exerciseId: string;
-  exercise: Exercise;
+  exerciseId?: string;
+  exercise?: Exercise;
+  name?: string; // Fallback caso o backend mande achatado
+  muscleGroup?: string; // Fallback caso o backend mande achatado
   targetSets: number;
   targetReps: string;
   actualReps: number | null;
@@ -38,7 +39,8 @@ interface WorkoutSession {
   id: string;
   day: string;
   completedAt: string | null;
-  sets: WorkoutSet[];
+  sets?: WorkoutSet[];
+  exercises?: WorkoutSet[]; // Fallback de segurança para nomes diferentes na API
 }
 
 interface WorkoutPlan {
@@ -265,12 +267,13 @@ function PlanCard({
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const completedSessions = plan.sessions.filter((s) => s.completedAt).length;
-  const totalSessions = plan.sessions.length;
+  const completedSessions =
+    plan.sessions?.filter((s) => s.completedAt).length || 0;
+  const totalSessions = plan.sessions?.length || 0;
   const progress =
     totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0;
 
-  const sortedSessions = [...plan.sessions].sort((a, b) => {
+  const sortedSessions = [...(plan.sessions || [])].sort((a, b) => {
     const aIndex = dayOrder.indexOf(a.day);
     const bIndex = dayOrder.indexOf(b.day);
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
@@ -374,10 +377,13 @@ function SessionCard({
 }) {
   const [completing, setCompleting] = useState(false);
 
-  const completedSets = session.sets.filter(
+  // Extrai os itens independente do nome que a API mandar (sets ou exercises)
+  const sessionItems = session.sets || session.exercises || [];
+
+  const completedSets = sessionItems.filter(
     (s) => s.actualReps !== null && s.actualReps > 0,
   ).length;
-  const totalSets = session.sets.length;
+  const totalSets = sessionItems.length;
 
   async function markAsComplete() {
     setCompleting(true);
@@ -386,7 +392,7 @@ function SessionCard({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sets: session.sets.map((s) => ({
+          sets: sessionItems.map((s) => ({
             setId: s.id,
             actualReps: s.actualReps,
             weightLifted: s.weightLifted,
@@ -442,14 +448,20 @@ function SessionCard({
       {isExpanded && (
         <div className="px-4 pb-4">
           {/* Exercises */}
-          <div className="space-y-3 mb-4">
-            {session.sets.map((set, index) => (
-              <SetRow key={set.id} set={set} index={index + 1} />
-            ))}
-          </div>
+          {sessionItems.length === 0 ? (
+            <div className="text-sm text-zinc-500 text-center py-4">
+              Nenhum exercício encontrado neste dia.
+            </div>
+          ) : (
+            <div className="space-y-3 mb-4">
+              {sessionItems.map((set, index) => (
+                <SetRow key={set.id || index} set={set} index={index + 1} />
+              ))}
+            </div>
+          )}
 
           {/* Complete Button */}
-          {!session.completedAt && (
+          {!session.completedAt && sessionItems.length > 0 && (
             <button
               onClick={markAsComplete}
               disabled={completing || completedSets === 0}
@@ -491,16 +503,21 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
     );
   }
 
+  // Fallback seguro caso os dados do exercício venham achatados da API
+  const exerciseName = set.exercise?.name || set.name || "Exercício";
+  const muscleGroupCode = set.exercise?.muscleGroup || set.muscleGroup || "";
+  const muscleGroupLabel = muscleGroupCode
+    ? muscleGroupLabels[muscleGroupCode]
+    : "";
+
   return (
     <div className="bg-zinc-800 rounded-lg p-3">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-zinc-300">
-          {index}. {set.exercise?.name || "Exercício"}
+          {index}. {exerciseName}
         </span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-zinc-500">
-            {muscleGroupLabels[set.exercise?.muscleGroup] || ""}
-          </span>
+          <span className="text-xs text-zinc-500">{muscleGroupLabel}</span>
           {estimatedOneRM > 0 && (
             <button
               onClick={() => setShowOneRM(!showOneRM)}
