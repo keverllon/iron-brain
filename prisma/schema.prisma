@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums para Tipagem Estrita
+enum ExperienceLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum MuscleGroup {
+  CHEST
+  BACK
+  LEGS
+  SHOULDERS
+  ARMS
+  CORE
+  FULLBODY
+}
+
+enum TargetGender {
+  MALE
+  FEMALE
+  BOTH
+}
+
+enum EquipmentType {
+  BARBELL
+  DUMBBELL
+  MACHINE_PLATE
+  MACHINE_CABLE
+  BODYWEIGHT
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// Tabela de Usuários
+model User {
+  id                  String             @id @default(uuid())
+  name                String
+  email               String             @unique
+  passwordHash        String?            // Hash da senha (bcrypt)
+  role                UserRole           @default(USER)
+  subscriptionStatus  SubscriptionStatus @default(FREE)
+  subscriptionEndsAt  DateTime?          // Data de expiração da assinatura
+  stripeCustomerId    String?            @unique // ID do cliente no Stripe
+  experienceLevel     ExperienceLevel    @default(BEGINNER)
+  workouts            WorkoutPlan[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  deletedAt           DateTime?          // Soft Delete Mandatório (Regra)
+}
+
+// Catálogo de Exercícios (A base da IA)
+model Exercise {
+  id             String        @id @default(uuid())
+  name           String        @unique
+  muscleGroup    MuscleGroup
+  isCompound     Boolean       @default(false)
+  targetGender   TargetGender  @default(BOTH) // Novo campo
+  equipmentType  EquipmentType @default(BARBELL)
+  sets           WorkoutSet[]
+  createdAt      DateTime      @default(now())
+}
+
+// O Treino Gerado pela IA (Ex: Treino A - Peito e Tríceps)
+model WorkoutPlan {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String           // Ex: "Treino de Hipertrofia - Mês 1"
+  sessions    WorkoutSession[]
+  createdAt   DateTime         @default(now())
+}
+
+// A Sessão de Treino Diária
+model WorkoutSession {
+  id            String       @id @default(uuid())
+  workoutPlanId String
+  workoutPlan   WorkoutPlan  @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+  day           String       // Ex: "Segunda-feira" ou "Treino A"
+  sets          WorkoutSet[]
+  completedAt   DateTime?    // Preenchido quando o usuário termina o treino
+}
+
+// A Série Executada (Set) - Onde registramos Carga e RPE
+model WorkoutSet {
+  id               String         @id @default(uuid())
+  workoutSessionId String
+  workoutSession   WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade)
+  exerciseId       String
+  exercise         Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  
+  // Sugerido pela IA
+  targetSets       Int
+  targetReps       String         // Ex: "8-12"
+  
+  // Executado pelo Usuário
+  actualReps       Int?
+  weightLifted     Float?         // Em Kg
+  rpe              Int?           // Percepção de Esforço (1-10)
+  
+  createdAt        DateTime       @default(now())
+}

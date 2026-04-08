@@ -1,65 +1,246 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import {
+  TrendingUp,
+  Calendar,
+  Activity,
+  Target,
+  Zap,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.4 },
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  subscriptionStatus: string;
+}
 
 export default function Home() {
+  const router = useRouter();
+  const [selectedTab, setSelectedTab] = useState("dashboard");
+  const [user, setUser] = useState<UserInfo | null>(null);
+
+  useEffect(() => {
+    // Verificar se usuário está logado
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      // Ignorar erro no logout
+    }
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    setUser(null);
+    router.refresh();
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <Header
+        activeTab="dashboard"
+        user={user}
+        onLogout={handleLogout}
+      />
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-2">Bem-vindo ao Iron Brain</h2>
+          <p className="text-zinc-400">
+            Seu assistente de treino inteligente com periodização via IA
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+
+        {/* Stats Cards */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate">
+          <motion.div variants={fadeInUp}>
+            <StatCard
+              icon={<Activity className="w-6 h-6" />}
+              title="Volume Semanal"
+              value="42 séries"
+              subtitle="Dentro do range ideal"
+              color="emerald"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <StatCard
+              icon={<TrendingUp className="w-6 h-6" />}
+              title="1RM Estimado"
+              value="100 kg"
+              subtitle="Supino Reto"
+              color="blue"
+            />
+            <StatCard
+              icon={<Calendar className="w-6 h-6" />}
+              title="Fase Atual"
+              value="Hipertrofia"
+              subtitle="Semana 3 de 6"
+              color="purple"
+            />
+            <StatCard
+              icon={<Target className="w-6 h-6" />}
+              title="Próximo Treino"
+              value="Peito/Tríceps"
+              subtitle="Segunda-feira"
+              color="orange"
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Quick Actions */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate">
+          <motion.div variants={fadeInUp}>
+            <QuickAction
+              icon={<Zap className="w-5 h-5" />}
+              title="Gerar Treino com IA"
+              description="Crie um treino personalizado baseado no seu nível e objetivos"
+              action="Gerar Treino"
+              href="/workouts"
+            />
+            <QuickAction
+              icon={<TrendingUp className="w-5 h-5" />}
+              title="Calcular 1RM"
+              description="Estime seu máximo com base nas suas últimas séries"
+              action="Calcular"
+              href="/workouts"
+            />
+            <QuickAction
+              icon={<Activity className="w-5 h-5" />}
+              title="Registrar Treino"
+              description="Registre suas séries, peso e RPE de hoje"
+              action="Registrar"
+              href="/workouts"
+            />
+          </motion.div>
+        </motion.div>
+
+        {/* Training Phase Info */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+          <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Target className="w-5 h-5 text-emerald-500" />
+            Fase de Treino: Hipertrofia
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-medium text-zinc-300 mb-2">Parâmetros</h4>
+              <ul className="space-y-2 text-zinc-400">
+                <li>• Repetições: 8-12 por série</li>
+                <li>• Intensidade: 65-80% do 1RM</li>
+                <li>• Descanso: 60-90 segundos</li>
+                <li>• Séries por exercício: 4</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-medium text-zinc-300 mb-2">
+                Volume por Músculo
+              </h4>
+              <ul className="space-y-2 text-zinc-400">
+                <li>• Peito: 16 séries/sem (ideal)</li>
+                <li>• Costas: 14 séries/sem (ideal)</li>
+                <li>• Pernas: 12 séries/sem (ideal)</li>
+                <li>• Ombros: 10 séries/sem (ideal)</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </main>
+    </div>
+  );
+}
+
+// ============================================================
+// COMPONENTES AUXILIARES
+// ============================================================
+
+interface StatCardProps {
+  icon: React.ReactNode;
+  title: string;
+  value: string;
+  subtitle: string;
+  color: "emerald" | "blue" | "purple" | "orange";
+}
+
+function StatCard({ icon, title, value, subtitle, color }: StatCardProps) {
+  const colorClasses = {
+    emerald: "text-emerald-500 bg-emerald-500/10",
+    blue: "text-blue-500 bg-blue-500/10",
+    purple: "text-purple-500 bg-purple-500/10",
+    orange: "text-orange-500 bg-orange-500/10",
+  };
+
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
+        <span className="text-sm text-zinc-400">{title}</span>
+      </div>
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-xs text-zinc-500 mt-1">{subtitle}</div>
+    </div>
+  );
+}
+
+interface QuickActionProps {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  action: string;
+  href: string;
+}
+
+function QuickAction({
+  icon,
+  title,
+  description,
+  action,
+  href,
+}: QuickActionProps) {
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="p-2 rounded-lg bg-zinc-800 text-emerald-500">
+          {icon}
+        </div>
+        <h4 className="font-medium">{title}</h4>
+      </div>
+      <p className="text-sm text-zinc-400 mb-4 flex-1">{description}</p>
+      <a
+        href={href}
+        className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-sm font-medium transition-colors">
+        {action}
+      </a>
     </div>
   );
 }
