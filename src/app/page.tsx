@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  TrendingUp,
-  Calendar,
-  Activity,
-  Target,
-  Zap,
-} from "lucide-react";
+import { TrendingUp, Calendar, Activity, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
@@ -36,16 +30,20 @@ interface UserInfo {
 
 export default function Home() {
   const router = useRouter();
-  const [selectedTab, setSelectedTab] = useState("dashboard");
   const [user, setUser] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Verificar se usuário está logado
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      setIsLoading(false);
+    } else {
+      // Se não estiver logado, força o redirecionamento
+      router.push("/auth/login");
     }
-  }, []);
+  }, [router]);
 
   async function handleLogout() {
     try {
@@ -56,22 +54,29 @@ export default function Home() {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
-    router.refresh();
+    router.push("/auth/login");
+  }
+
+  // Se estiver carregando ou não tiver usuário, não renderiza o dashboard
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <Header
-        activeTab="dashboard"
-        user={user}
-        onLogout={handleLogout}
-      />
+      <Header activeTab="dashboard" user={user} onLogout={handleLogout} />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-2">Bem-vindo ao Iron Brain</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            Bem-vindo, {user.name.split(" ")[0]}
+          </h2>
           <p className="text-zinc-400">
             Seu assistente de treino inteligente com periodização via IA
           </p>
@@ -91,6 +96,8 @@ export default function Home() {
               subtitle="Dentro do range ideal"
               color="emerald"
             />
+          </motion.div>
+          <motion.div variants={fadeInUp}>
             <StatCard
               icon={<TrendingUp className="w-6 h-6" />}
               title="1RM Estimado"
@@ -98,6 +105,8 @@ export default function Home() {
               subtitle="Supino Reto"
               color="blue"
             />
+          </motion.div>
+          <motion.div variants={fadeInUp}>
             <StatCard
               icon={<Calendar className="w-6 h-6" />}
               title="Fase Atual"
@@ -105,6 +114,8 @@ export default function Home() {
               subtitle="Semana 3 de 6"
               color="purple"
             />
+          </motion.div>
+          <motion.div variants={fadeInUp}>
             <StatCard
               icon={<Target className="w-6 h-6" />}
               title="Próximo Treino"
@@ -129,6 +140,8 @@ export default function Home() {
               action="Gerar Treino"
               href="/workouts"
             />
+          </motion.div>
+          <motion.div variants={fadeInUp}>
             <QuickAction
               icon={<TrendingUp className="w-5 h-5" />}
               title="Calcular 1RM"
@@ -136,6 +149,8 @@ export default function Home() {
               action="Calcular"
               href="/workouts"
             />
+          </motion.div>
+          <motion.div variants={fadeInUp}>
             <QuickAction
               icon={<Activity className="w-5 h-5" />}
               title="Registrar Treino"
@@ -201,7 +216,7 @@ function StatCard({ icon, title, value, subtitle, color }: StatCardProps) {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 h-full">
       <div className="flex items-center gap-3 mb-3">
         <div className={`p-2 rounded-lg ${colorClasses[color]}`}>{icon}</div>
         <span className="text-sm text-zinc-400">{title}</span>
@@ -228,7 +243,7 @@ function QuickAction({
   href,
 }: QuickActionProps) {
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col">
+    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col h-full">
       <div className="flex items-center gap-3 mb-3">
         <div className="p-2 rounded-lg bg-zinc-800 text-emerald-500">
           {icon}

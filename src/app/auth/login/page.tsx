@@ -133,51 +133,6 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-
-        {/* Demo Credentials */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mt-4">
-          <h3 className="text-sm font-semibold text-emerald-400 mb-3">
-            🔑 Credenciais Demo (sem banco)
-          </h3>
-          <div className="space-y-3">
-            <div className="bg-zinc-800 rounded-lg p-3">
-              <p className="text-xs text-zinc-400 mb-1">Admin</p>
-              <div className="flex justify-between items-center">
-                <code className="text-sm">admin@ironbrain.com</code>
-                <button
-                  onClick={() => {
-                    setEmail("admin@ironbrain.com");
-                    setPassword("admin123");
-                  }}
-                  className="text-xs bg-emerald-600 hover:bg-emerald-700 px-2 py-1 rounded">
-                  Usar
-                </button>
-              </div>
-              <p className="text-xs text-zinc-500 mt-1">Senha: admin123</p>
-            </div>
-            <div className="bg-zinc-800 rounded-lg p-3">
-              <p className="text-xs text-zinc-400 mb-1">Usuário</p>
-              <div className="flex justify-between items-center">
-                <code className="text-sm">user@ironbrain.com</code>
-                <button
-                  onClick={() => {
-                    setEmail("user@ironbrain.com");
-                    setPassword("user123");
-                  }}
-                  className="text-xs bg-zinc-600 hover:bg-zinc-700 px-2 py-1 rounded">
-                  Usar
-                </button>
-              </div>
-              <p className="text-xs text-zinc-500 mt-1">Senha: user123</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center mt-6">
-          <Link href="/" className="text-zinc-500 hover:text-zinc-300 text-sm">
-            ← Voltar ao Dashboard
-          </Link>
-        </div>
       </div>
     </div>
   );
