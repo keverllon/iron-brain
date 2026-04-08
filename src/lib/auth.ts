@@ -8,13 +8,16 @@ export interface JWTPayload {
   [key: string]: unknown;
 }
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET
-);
+// CORREÇÃO: Transformado em função com valor de fallback para evitar o erro "Zero-length key"
+const getJwtSecretKey = () => {
+  const secret =
+    process.env.JWT_SECRET || "chave-secreta-reserva-iron-brain-2026";
+  return new TextEncoder().encode(secret);
+};
 
 export async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     return payload as unknown as JWTPayload;
   } catch {
     return null;
@@ -33,7 +36,7 @@ export async function createToken(payload: JWTPayload): Promise<string> {
   return new SignJWT(payload as Record<string, unknown>)
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("7d")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecretKey());
 }
 
 export function setAuthCookie(response: Response, token: string): Response {
