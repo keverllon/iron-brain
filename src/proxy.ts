@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
+// CORREÇÃO: Adicionado o mesmo fallback do auth.ts para garantir que a chave nunca fique vazia
+const getJwtSecretKey = () => {
+  const secret =
+    process.env.JWT_SECRET || "chave-secreta-reserva-iron-brain-2026";
+  return new TextEncoder().encode(secret);
+};
 
 const protectedRoutes = ["/admin", "/api/admin"];
 const authRequiredApiRoutes = [
@@ -33,7 +38,7 @@ export async function proxy(request: NextRequest) {
 
     // Verificar assinatura do JWT
     try {
-      const { payload } = await jwtVerify(token, JWT_SECRET);
+      const { payload } = await jwtVerify(token, getJwtSecretKey()); // <-- CORREÇÃO AQUI
       const role = payload.role as string;
 
       // Rotas admin: verificar role de admin
@@ -67,7 +72,7 @@ export async function proxy(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(token, JWT_SECRET);
+      await jwtVerify(token, getJwtSecretKey()); // <-- CORREÇÃO AQUI
     } catch {
       return NextResponse.json(
         { success: false, error: "Token inválido ou expirado" },
