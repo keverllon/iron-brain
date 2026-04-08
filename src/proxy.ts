@@ -2,9 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET
-);
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const protectedRoutes = ["/admin", "/api/admin"];
 const authRequiredApiRoutes = [
@@ -21,7 +19,7 @@ function requiresAuthApi(pathname: string): boolean {
   return authRequiredApiRoutes.some((route) => pathname.startsWith(route));
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rotas protegidas: redirecionar para login se sem token
@@ -56,10 +54,7 @@ export async function middleware(request: NextRequest) {
   if (requiresAuthApi(pathname)) {
     // Só proteger métodos que modificam ou lêem dados privados
     // GET /api/exercises pode ser público (catálogo)
-    if (
-      pathname.startsWith("/api/exercises") &&
-      request.method === "GET"
-    ) {
+    if (pathname.startsWith("/api/exercises") && request.method === "GET") {
       return NextResponse.next();
     }
 
