@@ -1,0 +1,13 @@
+[
+  {
+    "titulo": "Polichinelos",
+    "categoria": "padrão_casa",
+    "descricao": "Realize 3 séries de 30 segundos..."
+  },
+  {
+    "titulo": "Corrida no lugar",
+    "categoria": "padrão_casa",
+    "descricao": "Realize 3 séries de 1 minuto..."
+  },
+  ...
+]

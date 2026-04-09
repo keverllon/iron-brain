@@ -1,0 +1,13 @@
+[
+  {
+    "titulo": "Agachamento",
+    "categoria": "padrão_gym",
+    "descricao": "Realize 3 séries de 15 repetições..."
+  },
+  {
+    "titulo": "Supino",
+    "categoria": "padrão_gym",
+    "descricao": "Realize 3 séries de 10 repetições..."
+  },
+  ...
+]
