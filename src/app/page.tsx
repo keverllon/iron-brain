@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { TrendingUp, Calendar, Activity, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 

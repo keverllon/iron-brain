@@ -94,6 +94,7 @@ model WorkoutSession {
   workoutPlanId String
   workoutPlan   WorkoutPlan  @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
   day           String       // Ex: "Segunda-feira" ou "Treino A"
+  weekNumber    Int?         // Semana do plano (1-4)
   sets          WorkoutSet[]
   completedAt   DateTime?    // Preenchido quando o usuário termina o treino
 }

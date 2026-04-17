@@ -99,6 +99,7 @@ export default function ExercisesPage() {
               />
             </div>
             <select
+              id="muscle-filter"
               value={filterMuscle}
               onChange={(e) => {
                 setFilterMuscle(e.target.value);
@@ -113,6 +114,7 @@ export default function ExercisesPage() {
               ))}
             </select>
             <select
+              id="equipment-filter"
               value={filterEquipment}
               onChange={(e) => {
                 setFilterEquipment(e.target.value);

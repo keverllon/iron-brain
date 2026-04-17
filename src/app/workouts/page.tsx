@@ -38,9 +38,10 @@ interface WorkoutSet {
 interface WorkoutSession {
   id: string;
   day: string;
+  weekNumber: number | null;
   completedAt: string | null;
   sets?: WorkoutSet[];
-  exercises?: WorkoutSet[]; // Fallback de segurança para nomes diferentes na API
+  exercises?: WorkoutSet[];
 }
 
 interface WorkoutPlan {
@@ -274,8 +275,11 @@ function PlanCard({
     totalSessions > 0 ? (completedSessions / totalSessions) * 100 : 0;
 
   const sortedSessions = [...(plan.sessions || [])].sort((a, b) => {
-    const aIndex = dayOrder.indexOf(a.day);
-    const bIndex = dayOrder.indexOf(b.day);
+    const aWeek = a.weekNumber || 1;
+    const bWeek = b.weekNumber || 1;
+    if (aWeek !== bWeek) return aWeek - bWeek;
+    const aIndex = dayOrder.indexOf(a.day.replace(/\(Semana \d+\)/, "").trim());
+    const bIndex = dayOrder.indexOf(b.day.replace(/\(Semana \d+\)/, "").trim());
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 
@@ -376,6 +380,7 @@ function SessionCard({
   onRefresh: () => void;
 }) {
   const [completing, setCompleting] = useState(false);
+  const [setData, setSetData] = useState<Record<string, { actualReps: number | null; weightLifted: number | null; rpe: number | null }>>({});
 
   // Extrai os itens independente do nome que a API mandar (sets ou exercises)
   const sessionItems = session.sets || session.exercises || [];
@@ -388,24 +393,30 @@ function SessionCard({
   async function markAsComplete() {
     setCompleting(true);
     try {
+      const setsPayload = sessionItems.map((s) => {
+        const updated = setData[s.id] || {};
+        return {
+          setId: s.id,
+          actualReps: updated.actualReps ?? s.actualReps,
+          weightLifted: updated.weightLifted ?? s.weightLifted,
+          rpe: updated.rpe ?? s.rpe,
+        };
+      });
+
       const res = await fetch(`/api/workout-plans/${session.id}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sets: sessionItems.map((s) => ({
-            setId: s.id,
-            actualReps: s.actualReps,
-            weightLifted: s.weightLifted,
-            rpe: s.rpe,
-          })),
-        }),
+        body: JSON.stringify({ sets: setsPayload }),
       });
       const data = await res.json();
       if (data.success) {
         onRefresh();
+      } else {
+        alert(data.error || "Erro ao concluir treino");
       }
     } catch (error) {
       console.error("Error completing session:", error);
+      alert("Erro ao conectar com o servidor");
     } finally {
       setCompleting(false);
     }
@@ -425,6 +436,11 @@ function SessionCard({
           )}
           <div className="text-left">
             <span className="font-medium">{session.day}</span>
+            {session.weekNumber && (
+              <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded ml-2">
+                Semana {session.weekNumber}
+              </span>
+            )}
             <span className="text-sm text-zinc-400 ml-2">
               ({completedSets}/{totalSets} séries)
             </span>
@@ -455,7 +471,15 @@ function SessionCard({
           ) : (
             <div className="space-y-3 mb-4">
               {sessionItems.map((set, index) => (
-                <SetRow key={set.id || index} set={set} index={index + 1} />
+                <SetRow 
+                  key={set.id || index} 
+                  set={set} 
+                  index={index + 1}
+                  onUpdate={(field, value) => setSetData(prev => ({
+                    ...prev,
+                    [set.id]: { ...prev[set.id], [field]: value }
+                  }))}
+                />
               ))}
             </div>
           )}
@@ -464,7 +488,7 @@ function SessionCard({
           {!session.completedAt && sessionItems.length > 0 && (
             <button
               onClick={markAsComplete}
-              disabled={completing || completedSets === 0}
+              disabled={completing}
               className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-zinc-700 disabled:opacity-50 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
               {completing ? (
                 <>
@@ -485,13 +509,21 @@ function SessionCard({
   );
 }
 
-function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
+function SetRow({ set, index, onUpdate }: { set: WorkoutSet; index: number; onUpdate?: (field: string, value: number | null) => void }) {
   const [actualReps, setActualReps] = useState(
     set.actualReps?.toString() || "",
   );
   const [weight, setWeight] = useState(set.weightLifted?.toString() || "");
   const [rpe, setRpe] = useState(set.rpe?.toString() || "7");
   const [showOneRM, setShowOneRM] = useState(false);
+
+  function handleChange(field: string, value: string) {
+    const numValue = value ? parseFloat(value) : null;
+    if (field === "actualReps") setActualReps(value);
+    else if (field === "weight") setWeight(value);
+    else if (field === "rpe") setRpe(value);
+    if (onUpdate) onUpdate(field === "weight" ? "weightLifted" : field, numValue);
+  }
 
   // Calcular 1RM estimado usando fórmula de Brzycki
   const currentWeight = parseFloat(weight) || 0;
@@ -538,7 +570,7 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
           <input
             type="number"
             value={actualReps}
-            onChange={(e) => setActualReps(e.target.value)}
+            onChange={(e) => handleChange("actualReps", e.target.value)}
             className="w-full bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-sm focus:outline-none focus:border-emerald-500"
             placeholder="0"
           />
@@ -548,7 +580,7 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
           <input
             type="number"
             value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            onChange={(e) => handleChange("weight", e.target.value)}
             className="w-full bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-sm focus:outline-none focus:border-emerald-500"
             placeholder="0"
           />
@@ -560,7 +592,7 @@ function SetRow({ set, index }: { set: WorkoutSet; index: number }) {
           <input
             type="number"
             value={rpe}
-            onChange={(e) => setRpe(e.target.value)}
+            onChange={(e) => handleChange("rpe", e.target.value)}
             className="w-20 bg-zinc-700 border border-zinc-600 rounded px-2 py-1 text-sm focus:outline-none focus:border-emerald-500"
             min={1}
             max={10}

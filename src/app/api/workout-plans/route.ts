@@ -168,12 +168,8 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
       exerciseWeights,
     } = validated.data as any;
 
-    // Buscar exercícios disponíveis no banco
-    let exercises = await prisma.exercise.findMany({
-      where: {
-        equipmentType: { in: availableEquipment },
-      },
-    });
+    // Buscar exercícios disponíveis no banco (todos, sem filtro)
+    let exercises = await prisma.exercise.findMany();
 
     // CORREÇÃO MÁGICA: Se o banco estiver vazio, cria exercícios padrão automaticamente
     if (exercises.length === 0) {
@@ -320,61 +316,83 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
       }
     }
 
-    // Obter configuração da semana atual (sempre semana 1 para novo treino)
-    const weekConfig = getWeekConfig(
-      periodizationModel as PeriodizationModel,
-      1,
-    );
+    // Gerar plano com o motor de periodização - 4 semanas
+    const totalWeeks = 4;
+    const allSessions: any[] = [];
+    const planWeeks: any[] = [];
 
-    // Gerar plano com o motor de periodização
-    const generatedPlan = generateWeeklyPlan({
-      experienceLevel: experienceLevel as ExperienceLevel,
-      targetMuscleGroups: targetMuscleGroups as MuscleGroup[],
-      availableEquipment: availableEquipment as EquipmentType[],
-      availableExercises: exercises.map((ex) => ({
-        name: ex.name,
-        muscleGroup: ex.muscleGroup,
-        equipmentType: ex.equipmentType,
-        isCompound: ex.isCompound,
-      })),
-      sessionsPerWeek,
-      phase: phase as TrainingPhase,
-      previousWeights: exerciseWeights || previousWeights,
-      periodizationModel: periodizationModel as PeriodizationModel,
-    });
+    for (let week = 1; week <= totalWeeks; week++) {
+      const weekConfig = getWeekConfig(
+        periodizationModel as PeriodizationModel,
+        week,
+      );
 
-    // Verificar equilíbrio biomecânico
-    const balanceCheck = checkBiomechanicalBalance(generatedPlan.sessions);
+      const generatedWeek = generateWeeklyPlan({
+        experienceLevel: experienceLevel as ExperienceLevel,
+        targetMuscleGroups: targetMuscleGroups as MuscleGroup[],
+        availableEquipment: availableEquipment as EquipmentType[],
+        availableExercises: exercises.map((ex) => ({
+          name: ex.name,
+          muscleGroup: ex.muscleGroup,
+          equipmentType: ex.equipmentType,
+          isCompound: ex.isCompound,
+        })),
+        sessionsPerWeek,
+        phase: phase as TrainingPhase,
+        previousWeights: exerciseWeights || previousWeights,
+        periodizationModel: periodizationModel as PeriodizationModel,
+      });
 
-    // Salvar no banco
+      planWeeks.push({
+        week,
+        config: weekConfig,
+        sessions: generatedWeek.sessions,
+        weeklyVolumePerMuscle: generatedWeek.weeklyVolumePerMuscle,
+      });
+
+      // Adicionar sessões desta semana
+      allSessions.push(...generatedWeek.sessions.map(s => ({ ...s, week })));
+    }
+
+    // Gerar nome do plano
+    const phaseLabel = phase === "HYPERTROPHY" ? "Hipertrofia" : phase === "STRENGTH" ? "Força" : "Deload";
+    const planName = `${phaseLabel} - ${sessionsPerWeek}x/semana - ${totalWeeks} semanas`;
+
+    // Verificar equilíbrio biomecânico da primeira semana
+    const balanceCheck = checkBiomechanicalBalance(planWeeks[0].sessions);
+
+    // Salvar no banco - criar uma sessão por semana (4 semanas de treino)
+    // Cada "semana" terá sessionsPerWeek dias, então no total serão sessionsPerWeek * totalWeeks entradas
     const plan = await prisma.workoutPlan.create({
       data: {
         userId,
-        name: generatedPlan.name,
+        name: planName,
         sessions: {
-          create: generatedPlan.sessions.map((session) => ({
-            day: session.day,
-            sets: {
-              // Proteção extra: ignora nulos caso a IA invente exercícios e evita crash no banco
-              create: session.exercises
-                .map((ex) => {
-                  const exercise = exerciseMap.get(ex.name.toLowerCase());
-                  if (!exercise) {
-                    console.warn(
-                      `Exercício ignorado (não encontrado no banco): ${ex.name}`,
-                    );
-                    return null;
-                  }
-                  return {
-                    exerciseId: exercise.id,
-                    targetSets: ex.sets || 3,
-                    targetReps: ex.targetReps || "8-12",
-                    weightLifted: ex.estimatedWeight || 0,
-                  };
-                })
-                .filter((set): set is NonNullable<typeof set> => set !== null),
-            },
-          })),
+          create: planWeeks.flatMap((weekData, weekIndex) => 
+            weekData.sessions.map((session: any) => ({
+              day: `${session.day} (Semana ${weekData.week})`,
+              weekNumber: weekData.week,
+              sets: {
+                create: session.exercises
+                  .map((ex: any) => {
+                    const exercise = exerciseMap.get(ex.name.toLowerCase());
+                    if (!exercise) {
+                      console.warn(
+                        `Exercício ignorado (não encontrado no banco): ${ex.name}`,
+                      );
+                      return null;
+                    }
+                    return {
+                      exerciseId: exercise.id,
+                      targetSets: ex.sets || 3,
+                      targetReps: ex.targetReps || "8-12",
+                      weightLifted: ex.estimatedWeight || 0,
+                    };
+                  })
+                  .filter((set: any): set is NonNullable<typeof set> => set !== null),
+              },
+            }))
+          ),
         },
       },
       include: {
@@ -395,7 +413,13 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
         success: true,
         data: {
           plan,
-          generatedPlan,
+          generatedPlan: {
+            name: planName,
+            phase,
+            sessions: allSessions,
+            weeklyVolumePerMuscle: planWeeks[0].weeklyVolumePerMuscle,
+          },
+          planWeeks,
           biomechanicalBalance: balanceCheck,
           phaseProgression: determineNextPhase(phase as TrainingPhase, 0),
         },
