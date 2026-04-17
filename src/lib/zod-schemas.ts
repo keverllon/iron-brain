@@ -83,6 +83,7 @@ export const aiWorkoutGenerationSchema = z.object({
     .enum(["LINEAR", "UNDULATING", "BLOCK", "REVERSE_LINEAR"])
     .default("LINEAR"),
   exerciseWeights: z.record(z.string(), z.number()).optional(),
+  workoutLocation: z.enum(["GYM", "HOME"]).optional(),
 });
 
 export type AIWorkoutGenerationInput = z.infer<

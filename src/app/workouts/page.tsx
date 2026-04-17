@@ -679,6 +679,7 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
   const [selectedLevel, setSelectedLevel] = useState("INTERMEDIATE");
   const [sessionsPerWeek, setSessionsPerWeek] = useState(4);
   const [selectedModel, setSelectedModel] = useState("LINEAR");
+  const [selectedLocation, setSelectedLocation] = useState<"GYM" | "HOME">("GYM");
   const [showWeights, setShowWeights] = useState(false);
   const [exerciseWeights, setExerciseWeights] = useState<
     Record<string, number>
@@ -690,6 +691,10 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
       return;
     }
 
+    const equipment = selectedLocation === "GYM" 
+      ? ["BARBELL", "DUMBBELL", "MACHINE_PLATE", "MACHINE_CABLE"]
+      : ["BODYWEIGHT"];
+
     setLoading(true);
     try {
       const res = await fetch("/api/workout-plans?action=generate", {
@@ -698,16 +703,14 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
         body: JSON.stringify({
           userId: userId,
           experienceLevel: selectedLevel,
-          targetMuscleGroups: ["CHEST", "BACK", "LEGS", "SHOULDERS", "ARMS"],
-          availableEquipment: [
-            "BARBELL",
-            "DUMBBELL",
-            "MACHINE_PLATE",
-            "MACHINE_CABLE",
-          ],
+          targetMuscleGroups: selectedLocation === "HOME" 
+            ? ["FULLBODY"] 
+            : ["CHEST", "BACK", "LEGS", "SHOULDERS", "ARMS"],
+          availableEquipment: equipment,
           sessionsPerWeek: sessionsPerWeek,
           phase: "HYPERTROPHY",
           periodizationModel: selectedModel,
+          workoutLocation: selectedLocation,
           exerciseWeights: showWeights ? exerciseWeights : undefined,
         }),
       });
@@ -756,6 +759,35 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
               <div className="text-xs text-zinc-400">{level.description}</div>
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Local de Treino */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-zinc-300 mb-3">
+          Onde você treina?
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => setSelectedLocation("GYM")}
+            className={`p-4 rounded-lg border-2 text-left transition-all ${
+              selectedLocation === "GYM"
+                ? "border-emerald-500 bg-emerald-500/10"
+                : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
+            }`}>
+            <div className="font-medium">🏋️ Academia</div>
+            <div className="text-xs text-zinc-400">Com equipamentos</div>
+          </button>
+          <button
+            onClick={() => setSelectedLocation("HOME")}
+            className={`p-4 rounded-lg border-2 text-left transition-all ${
+              selectedLocation === "HOME"
+                ? "border-emerald-500 bg-emerald-500/10"
+                : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
+            }`}>
+            <div className="font-medium">🏠 Em Casa</div>
+            <div className="text-xs text-zinc-400">Sem equipamentos</div>
+          </button>
         </div>
       </div>
 

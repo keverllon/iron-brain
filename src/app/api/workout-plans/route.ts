@@ -166,13 +166,22 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
       phase,
       periodizationModel,
       exerciseWeights,
+      workoutLocation,
     } = validated.data as any;
 
-    // Buscar exercícios disponíveis no banco (todos, sem filtro)
+    // Filtrar exercícios baseado no local de treino
     let exercises = await prisma.exercise.findMany();
+    
+    // Filtrar exercícios se for treino em casa ( BODYWEIGHT )
+    if (workoutLocation === "HOME" || (availableEquipment.length === 1 && availableEquipment[0] === "BODYWEIGHT")) {
+      exercises = exercises.filter(ex => ex.equipmentType === "BODYWEIGHT" || ex.equipmentType === "DUMBBELL");
+    } else {
+      // Para academia, filtrar por equipamentos disponíveis
+      exercises = exercises.filter(ex => availableEquipment.includes(ex.equipmentType));
+    }
 
-    // CORREÇÃO MÁGICA: Se o banco estiver vazio, cria exercícios padrão automaticamente
-    if (exercises.length === 0) {
+    // Se não tiver exercícios suficientes para academia, criar padrão
+    if (exercises.length < 5 && workoutLocation !== "HOME") {
       console.log("Banco de exercícios vazio. Criando lista padrão...");
       const defaultExercises = [
         {

@@ -37,7 +37,10 @@ export async function GET(request: NextRequest) {
     const exercises = await prisma.exercise.findMany({
       where,
       orderBy: { name: "asc" },
+      take: 200, // Limite maior para garantir que retorna todos
     });
+
+    console.log(`Encontrados ${exercises.length} exercícios no banco`);
 
     return NextResponse.json({
       success: true,
