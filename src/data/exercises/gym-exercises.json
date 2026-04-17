@@ -1,0 +1,352 @@
+[
+  {
+    "name": "Supino Reto com Barra",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Supino Reto com Halteres",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Supino Inclinado com Barra",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Supino Inclinado com Halteres",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Supino Declinado com Barra",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Supino Declinado com Halteres",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Crucifixo Reto com Halteres",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Crucifixo Inclinado com Halteres",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Peck Deck (Voador na Máquina)",
+    "muscleGroup": "CHEST",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Crossover na Polia Alta",
+    "muscleGroup": "CHEST",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Crossover na Polia Baixa",
+    "muscleGroup": "CHEST",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Pullover com Halter",
+    "muscleGroup": "CHEST",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Barra Fixa (Pegada Pronada)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Barra Fixa (Pegada Supinada/Chin-up)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Puxada Alta na Polia (Pegada Pronada)",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Puxada Alta na Polia (Com Triângulo)",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Curvada com Barra (Pegada Pronada)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Curvada com Barra (Pegada Supinada)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Unilateral com Halter (Serrote)",
+    "muscleGroup": "BACK",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Cavalinho (T-Bar Row com Barra)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Cavalinho Articulada (Máquina)",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Remada Baixa na Polia com Triângulo",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Pull Down com Corda na Polia Alta",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Pull Down com Barra Reta",
+    "muscleGroup": "BACK",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Levantamento Terra (Deadlift)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Extensão Lombar no Banco (Hiperextensão)",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Agachamento Livre",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Agachamento Hack",
+    "muscleGroup": "LEGS",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Leg Press",
+    "muscleGroup": "LEGS",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Cadeira Extensora",
+    "muscleGroup": "LEGS",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Cadeira Flexora",
+    "muscleGroup": "LEGS",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Stiff",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Afundo com Barra",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Afundo com Halteres",
+    "muscleGroup": "LEGS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Elevação Pelvic",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Desenvolvimento de Ombro com Barra",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Desenvolvimento de Ombro com Halteres",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Elevação Lateral",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Elevação Frontal",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Remada Alta",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Face Pull",
+    "muscleGroup": "SHOULDERS",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Rosca Direta",
+    "muscleGroup": "ARMS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Rosca Alternada",
+    "muscleGroup": "ARMS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Rosca Martelo",
+    "muscleGroup": "ARMS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Rosca Concentrada",
+    "muscleGroup": "ARMS",
+    "equipmentType": "DUMBBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Rosca Scott",
+    "muscleGroup": "ARMS",
+    "equipmentType": "MACHINE_PLATE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Tríceps Pulley",
+    "muscleGroup": "ARMS",
+    "equipmentType": "MACHINE_CABLE",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Tríceps Testa",
+    "muscleGroup": "ARMS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Tríceps Barra",
+    "muscleGroup": "ARMS",
+    "equipmentType": "BARBELL",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Tríceps Francês",
+    "muscleGroup": "ARMS",
+    "equipmentType": "EZBAR",
+    "targetGender": "BOTH",
+    "isCompound": false
+  }
+]

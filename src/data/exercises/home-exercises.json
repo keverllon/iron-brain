@@ -1,0 +1,191 @@
+[
+  {
+    "name": "Flexão de Braço",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Flexão de Braço Joelhos",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Flexão de Braço Declinada",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Flexão de Braço Ampla",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Flexão de Braço Diamante",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Prancha Frontal",
+    "muscleGroup": "CORE",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Prancha Lateral",
+    "muscleGroup": "CORE",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Abdominal Crunch",
+    "muscleGroup": "CORE",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Abdominal Bicicleta",
+    "muscleGroup": "CORE",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Elevação de Pernas",
+    "muscleGroup": "CORE",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Agachamento Livre",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Agachamento Sumô",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Afundo Estacionário",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Afundo Andando",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Glute Bridge",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Single Leg Glute Bridge",
+    "muscleGroup": "LEGS",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Burpee",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Mountain Climber",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Jumping Jack",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "High Knees",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Butt Kicks",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Skater Jumps",
+    "muscleGroup": "FULLBODY",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Flexão de Braço com Bata",
+    "muscleGroup": "CHEST",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Puxada Invertida Sob Mesa",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": true
+  },
+  {
+    "name": "Superman",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "Reverse Snow Angels",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  },
+  {
+    "name": "YTWL",
+    "muscleGroup": "BACK",
+    "equipmentType": "BODYWEIGHT",
+    "targetGender": "BOTH",
+    "isCompound": false
+  }
+]

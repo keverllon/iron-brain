@@ -679,21 +679,16 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
   const [selectedLevel, setSelectedLevel] = useState("INTERMEDIATE");
   const [sessionsPerWeek, setSessionsPerWeek] = useState(4);
   const [selectedModel, setSelectedModel] = useState("LINEAR");
-  const [selectedLocation, setSelectedLocation] = useState<"GYM" | "HOME">("GYM");
   const [showWeights, setShowWeights] = useState(false);
   const [exerciseWeights, setExerciseWeights] = useState<
     Record<string, number>
   >({});
 
-  async function handleGenerate() {
+  async function handleGenerateGym() {
     if (!userId) {
       setResult("Erro: Faça login para gerar treinos");
       return;
     }
-
-    const equipment = selectedLocation === "GYM" 
-      ? ["BARBELL", "DUMBBELL", "MACHINE_PLATE", "MACHINE_CABLE"]
-      : ["BODYWEIGHT"];
 
     setLoading(true);
     try {
@@ -703,14 +698,50 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
         body: JSON.stringify({
           userId: userId,
           experienceLevel: selectedLevel,
-          targetMuscleGroups: selectedLocation === "HOME" 
-            ? ["FULLBODY"] 
-            : ["CHEST", "BACK", "LEGS", "SHOULDERS", "ARMS"],
-          availableEquipment: equipment,
+          targetMuscleGroups: ["CHEST", "BACK", "LEGS", "SHOULDERS", "ARMS"],
+          availableEquipment: ["BARBELL", "DUMBBELL", "MACHINE_PLATE", "MACHINE_CABLE"],
           sessionsPerWeek: sessionsPerWeek,
           phase: "HYPERTROPHY",
           periodizationModel: selectedModel,
-          workoutLocation: selectedLocation,
+          workoutLocation: "GYM",
+          exerciseWeights: showWeights ? exerciseWeights : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setResult(
+          `Treino "${data.data.generatedPlan.name}" gerado com sucesso! Volte para "Meus Treinos" para acompanhar.`,
+        );
+      } else {
+        setResult(`Erro: ${data.error}`);
+      }
+    } catch (error) {
+      setResult("Erro ao gerar treino");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleGenerateHome() {
+    if (!userId) {
+      setResult("Erro: Faça login para gerar treinos");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/workout-plans?action=generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: userId,
+          experienceLevel: selectedLevel,
+          targetMuscleGroups: ["FULLBODY"],
+          availableEquipment: ["BODYWEIGHT"],
+          sessionsPerWeek: sessionsPerWeek,
+          phase: "HYPERTROPHY",
+          periodizationModel: selectedModel,
+          workoutLocation: "HOME",
           exerciseWeights: showWeights ? exerciseWeights : undefined,
         }),
       });
