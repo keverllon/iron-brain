@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TrendingUp, Calendar, Activity, Target, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 
@@ -31,20 +30,14 @@ interface UserInfo {
 
 export default function Home() {
   const router = useRouter();
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Verificar se usuário está logado
+  const [user, setUser] = useState<UserInfo | null>(() => {
     const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsLoading(false);
-    } else {
-      // Se não estiver logado, força o redirecionamento
-      router.push("/auth/login");
-    }
-  }, [router]);
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(() => {
+    const storedUser = localStorage.getItem("user");
+    return !storedUser;
+  });
 
   async function handleLogout() {
     try {
@@ -55,6 +48,7 @@ export default function Home() {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
+    setIsLoading(true);
     router.push("/auth/login");
   }
 

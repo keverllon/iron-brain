@@ -793,34 +793,41 @@ function GenerateWorkoutTab({ userId }: { userId: string | null }) {
         </div>
       </div>
 
-      {/* Local de Treino */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-zinc-300 mb-3">
-          Onde você treina?
-        </label>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => setSelectedLocation("GYM")}
-            className={`p-4 rounded-lg border-2 text-left transition-all ${
-              selectedLocation === "GYM"
-                ? "border-emerald-500 bg-emerald-500/10"
-                : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
-            }`}>
-            <div className="font-medium">🏋️ Academia</div>
-            <div className="text-xs text-zinc-400">Com equipamentos</div>
-          </button>
-          <button
-            onClick={() => setSelectedLocation("HOME")}
-            className={`p-4 rounded-lg border-2 text-left transition-all ${
-              selectedLocation === "HOME"
-                ? "border-emerald-500 bg-emerald-500/10"
-                : "border-zinc-700 bg-zinc-800 hover:border-zinc-600"
-            }`}>
-            <div className="font-medium">🏠 Em Casa</div>
-            <div className="text-xs text-zinc-400">Sem equipamentos</div>
-          </button>
-        </div>
-      </div>
+       {/* Botões de Geração de Treino */}
+       <div className="mb-6">
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<button
+              onClick={handleGenerateGym}
+              disabled={loading}
+              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${loading ? "border-zinc-700 bg-zinc-800 hover:border-zinc-600" : "border-emerald-500 bg-emerald-500/10 hover:border-emerald-600"}`}
+            >
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                 <div className="font-medium">🏋️ Academia</div>
+                 <div className="text-xs text-zinc-400">Treino com equipamentos</div>
+               </div>
+               {loading && (
+                 <Loader2 className="w-4 h-4 animate-spin" />
+               )}
+             </div>
+           </button>
+<button
+              onClick={handleGenerateHome}
+              disabled={loading}
+              className={`w-full p-4 rounded-lg border-2 text-left transition-all ${loading ? "border-zinc-700 bg-zinc-800 hover:border-zinc-600" : "border-emerald-500 bg-emerald-500/10 hover:border-emerald-600"}`}
+            >
+             <div className="flex items-center justify-between">
+               <div className="flex items-center gap-2">
+                 <div className="font-medium">🏠 Em Casa</div>
+                 <div className="text-xs text-zinc-400">Treino sem equipamentos</div>
+               </div>
+               {loading && (
+                 <Loader2 className="w-4 h-4 animate-spin" />
+               )}
+             </div>
+           </button>
+         </div>
+       </div>
 
       {/* Sessões por Semana */}
       <div className="mb-6">
