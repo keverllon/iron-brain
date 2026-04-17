@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  PrismaClient,
-  MuscleGroup,
-  EquipmentType,
-  ExperienceLevel,
-} from "@prisma/client";
+import { MuscleGroup, EquipmentType, ExperienceLevel } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import {
   workoutPlanSchema,
   aiWorkoutGenerationSchema,
+  type AIWorkoutGenerationInput,
 } from "@/lib/zod-schemas";
 import {
   generateWeeklyPlan,
@@ -18,6 +14,8 @@ import {
   getWeekConfig,
   type TrainingPhase,
   type PeriodizationModel,
+  type GeneratedSession,
+  type GeneratedExercise,
 } from "@/lib/periodization-engine";
 
 // GET - Listar planos de treino do usuário autenticado
@@ -167,7 +165,7 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
       periodizationModel,
       exerciseWeights,
       workoutLocation,
-    } = validated.data as any;
+    } = validated.data as AIWorkoutGenerationInput;
 
     // Filtrar exercícios baseado no local de treino
     let exercises = await prisma.exercise.findMany();
@@ -298,7 +296,7 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
     }
 
     // Buscar pesos anteriores do usuário para progressão
-    let previousWeights: Record<string, number> = {};
+    const previousWeights: Record<string, number> = {};
     if (!exerciseWeights) {
       const lastPlan = await prisma.workoutPlan.findFirst({
         where: { userId },
@@ -327,8 +325,8 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
 
     // Gerar plano com o motor de periodização - 4 semanas
     const totalWeeks = 4;
-    const allSessions: any[] = [];
-    const planWeeks: any[] = [];
+    const allSessions: { day: string; week: number }[] = [];
+    const planWeeks: { week: number; config: unknown; sessions: GeneratedSession[]; weeklyVolumePerMuscle: Record<string, number> }[] = [];
 
     for (let week = 1; week <= totalWeeks; week++) {
       const weekConfig = getWeekConfig(
@@ -377,13 +375,13 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
         userId,
         name: planName,
         sessions: {
-          create: planWeeks.flatMap((weekData, weekIndex) => 
-            weekData.sessions.map((session: any) => ({
+          create: planWeeks.flatMap((weekData) => 
+            weekData.sessions.map((session: GeneratedSession) => ({
               day: `${session.day} (Semana ${weekData.week})`,
               weekNumber: weekData.week,
               sets: {
                 create: session.exercises
-                  .map((ex: any) => {
+                  .map((ex: GeneratedExercise) => {
                     const exercise = exerciseMap.get(ex.name.toLowerCase());
                     if (!exercise) {
                       console.warn(
@@ -398,7 +396,7 @@ async function generateWorkoutPlan(body: unknown, userId: string) {
                       weightLifted: ex.estimatedWeight || 0,
                     };
                   })
-                  .filter((set: any): set is NonNullable<typeof set> => set !== null),
+                  .filter((set): set is NonNullable<typeof set> => set !== null),
               },
             }))
           ),
